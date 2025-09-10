@@ -4,6 +4,11 @@ import telebot
 from telebot.types import InputMediaPhoto
 from config import BOT_TOKEN, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, USER_AGENT
 
+AUTHORIZED_USERS = [7739944746] 
+
+def is_authorized(user_id):
+    return user_id in AUTHORIZED_USERS
+
 bot = telebot.TeleBot(BOT_TOKEN)
 reddit = praw.Reddit(
     client_id=REDDIT_CLIENT_ID,
@@ -13,6 +18,10 @@ reddit = praw.Reddit(
 
 @bot.message_handler(func=lambda message: "reddit.com" in message.text or "redd.it" in message.text)
 def handle_reddit_link(message):
+    if not is_authorized(message.from_user.id):
+        bot.send_message(message.chat.id, "❌ У вас нет доступа к этому боту.")
+        return
+
     try:
         url = message.text.split()[0]
         
@@ -45,5 +54,5 @@ def handle_reddit_link(message):
         bot.send_message(message.chat.id, f"❌ Произошла ошибка: {e}")
 
 if __name__ == '__main__':
-    print("Бот запущен.")
+    print("Бот запущен. Ожидаю ссылки...")
     bot.polling(none_stop=True)
