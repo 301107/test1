@@ -15,7 +15,6 @@ reddit = praw.Reddit(
     client_secret=REDDIT_CLIENT_SECRET,
     user_agent=USER_AGENT
 )
-
 @bot.message_handler(func=lambda message: "reddit.com" in message.text or "redd.it" in message.text)
 def handle_reddit_link(message):
     if not is_authorized(message.from_user.id):
@@ -27,7 +26,8 @@ def handle_reddit_link(message):
         
         submission = reddit.submission(url=url)
         
-        if submission.is_gallery:
+
+        if hasattr(submission, 'gallery_data'):
             bot.send_message(message.chat.id, "⌛️ Загружаю альбом...")
             media = []
             
